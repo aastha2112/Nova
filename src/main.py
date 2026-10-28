@@ -3,6 +3,7 @@ from openai import APIError, RateLimitError
 from pydantic import BaseModel, Field
 
 from src.llm import ask_llm
+from src.prompts import SUPPORT_SYSTEM_PROMPT
 
 app = FastAPI(title='Nova')
 
@@ -19,7 +20,7 @@ class ChatResponse(BaseModel):
 @app.post('/chat', response_model=ChatResponse)
 async def chat(req: ChatRequest):
     try:
-        answer = await ask_llm(req.message)
+        answer = await ask_llm(req.message, SUPPORT_SYSTEM_PROMPT)
         return ChatResponse(answer=answer)
     except RateLimitError:
         raise HTTPException(
