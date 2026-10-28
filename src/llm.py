@@ -17,6 +17,8 @@ async def ask_llm(message: str, system: str='') -> str:
         model=settings.llm_model,
         messages=messages,
         max_tokens=400,
+        reasoning_effort="none",
+
     )
-    print(reply.choices[0].message.content)
+    print(reply)
     return reply.choices[0].message.content

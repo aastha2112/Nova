@@ -28,4 +28,3 @@ async def chat(req: ChatRequest):
         )    
     except APIError as e:
         raise HTTPException(status_code=500, detail=f'LLM Error: {e}')
-    return ChatResponse(answer=answer)    
