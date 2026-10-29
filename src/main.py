@@ -1,9 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from openai import APIError, RateLimitError
 from pydantic import BaseModel, Field
 
 from src.llm import ask_llm
 from src.prompts import SUPPORT_SYSTEM_PROMPT
+from src.store import search
+
 
 app = FastAPI(title='Nova')
 
@@ -29,3 +31,7 @@ async def chat(req: ChatRequest):
         )    
     except APIError as e:
         raise HTTPException(status_code=500, detail=f'LLM Error: {e}')
+
+@app.get('/search')
+def search_docs(q: str = Query(min_length = 1, max_length=300), k: int = Query(default = 3, ge=1, le =10)):
+    return search(q, k)        
