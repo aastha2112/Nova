@@ -1,9 +1,10 @@
+import asyncio
 from fastapi import FastAPI, HTTPException, Query
 from openai import APIError, RateLimitError
 from pydantic import BaseModel, Field
 
 from src.llm import ask_llm
-from src.prompts import SUPPORT_SYSTEM_PROMPT
+from src.prompts import SUPPORT_SYSTEM_PROMPT, build_rag_prompt
 from src.store import search
 
 
@@ -22,7 +23,12 @@ class ChatResponse(BaseModel):
 @app.post('/chat', response_model=ChatResponse)
 async def chat(req: ChatRequest):
     try:
-        answer = await ask_llm(req.message, SUPPORT_SYSTEM_PROMPT)
+        found = await asyncio.to_thread(search, req.message, 3)
+        chunks = [item["text"] for item in found]
+        print(chunks)                                   # temporary: dekho kya mila
+
+        prompt = build_rag_prompt(req.message, chunks)
+        answer = await ask_llm(prompt, SUPPORT_SYSTEM_PROMPT)
         return ChatResponse(answer=answer)
     except RateLimitError:
         raise HTTPException(
