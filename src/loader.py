@@ -1,4 +1,5 @@
 from pathlib import Path
+from src.chunking import chunk_text
 
 def load_docs(folder: str= 'knowledge') -> list[dict]:
     docs = []
@@ -10,5 +11,7 @@ def load_docs(folder: str= 'knowledge') -> list[dict]:
     return docs
 
 if __name__ == '__main__':
-    for doc in load_docs():
-        print(doc["source"], "->", len(doc["text"]), "characters")
+    doc = load_docs()[0]
+    chunks = chunk_text(doc["text"], size=200, overlap=50)
+    for i, chunk in enumerate(chunks):
+        print(i, chunk)
